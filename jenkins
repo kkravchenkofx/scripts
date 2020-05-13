@@ -1,19 +1,22 @@
-sudo apt -y update && apt -y upgrade && apt -y autoremove;
+sudo apt -y update; sudo apt -y upgrade; sudo apt -y autoremove;
 sudo apt -y install software-properties-common;
 sudo apt -y install -y openjdk-11-jdk;
+
 #----------Install Jenkins
-wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -;
-echo "deb https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list;
-sudo apt update;
-sudo apt -y install jenkins git;
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install jenkins
 sudo systemctl start jenkins;
 sudo systemctl enable jenkins;
-#----------Install nginx\n
+
+#----------Install nginx
 sudo apt -y install nginx;
 sudo systemctl start nginx;
 sudo systemctl enable nginx;
-#----------Configure basic auth and reverse proxy nginx\n
-sudo apt -y install apache2-utils openssl\;
+
+#----------Configure basic auth and reverse proxy nginx
+sudo apt -y install apache2-utils openssl;
 sudo htpasswd -bc /etc/nginx/.htpasswd user passwd;
 MYIP=$(wget -O - -q icanhazip.com);
 sudo echo "server {listen 80;server_name ${MYIP};location / {auth_basic "Restricted Area";auth_basic_user_file /etc/nginx/.htpasswd; proxy_pass http://127.0.0.1:8080; proxy_set_header  Authorization ""}" > \
@@ -21,9 +24,3 @@ sudo echo "server {listen 80;server_name ${MYIP};location / {auth_basic "Restric
 
 sudo ln -s /etc/nginx/sites-available/jenkins /etc/nginx/sites-enabled/jenkins;
 sudo systemctl restart nginx.service jenkins.service;
-
-wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > \
-    /etc/apt/sources.list.d/jenkins.list';
-sudo apt-get update;
-sudo apt-get install jenkins;
